@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    sponsor Register
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>sponsor Register</h1>
+        <form action="" class="login-form" method="post">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="role" class="form-label">Company Name</label>
+                <input type="text" name="company" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="industry" class="form-label">Industry</label>
+                <input type="text" name="industry" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="budget" class="form-label">Budget</label>
+                <input type="number" name="budget" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Register</button>
+            </div>
+
+
+        </form>
+    </div>
+{% endblock %}

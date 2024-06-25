@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+j.
+{% block title %}
+    Influencer Register
+{% endblock %}
+
+{% block content %}
+    <!-- fields for username, password, name, category , niche , reach -->
+     <div class="container">
+        <h1>Influencer Register</h1>
+        <form action="" class="login-form" method="post">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" name="password">
+            </div>
+
+            <div class="form-group">
+                <label for="role" class="form-label">Name</label>
+                <input type="text" name="name" class="form-control">    
+            </div>
+
+            <div class="form-group">
+                <label for="role" class="form-label">Category</label>
+                <input type="text" name="category" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="role" class="form-label">Niche</label>
+                <input type="text" name="niche" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="role" class="form-label">Reach</label>
+                <input type="text" name="reach" class="form-control">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Register</button>
+            </div>
+        </form>
+     </div>
+{% endblock %}
