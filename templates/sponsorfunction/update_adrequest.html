@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Update AdRequest
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Update AdRequest</h1>
+        <form action="" class="adrequest-form" method="post">
+            <div class="form-group">
+                <label for="campaign_id" class="form-label">Campaign ID:</label>
+                <select id="campaign_id" name="campaign_id" class="form-control" required>
+                    {% for campaign in campaigns %}
+                        <option value="{{ campaign.campaign_id }}" {% if campaign.campaign_id == adrequest.campaign_id %}selected{% endif %}>
+                            {{ campaign.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="influencer_id" class="form-label">Influencer ID:</label>
+                <select id="influencer_id" name="influencer_id" class="form-control" required>
+                    {% for influencer in influencers %}
+                        <option value="{{ influencer.influencer_id }}" {% if influencer.influencer_id == adrequest.influencer_id %}selected{% endif %}>
+                            {{ influencer.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="messages" class="form-label">Messages:</label>
+                <textarea id="messages" name="messages" class="form-control" required>{{ adrequest.messages }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="requirements" class="form-label">Requirements:</label>
+                <textarea id="requirements" name="requirements" class="form-control" required>{{ adrequest.requirements }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_amount" class="form-label">Payment Amount:</label>
+                <input type="number" id="payment_amount" name="payment_amount" step="0.01" class="form-control" required value="{{ adrequest.payment_amount }}">
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">
+                    Update
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

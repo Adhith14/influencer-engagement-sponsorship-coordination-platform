@@ -1,8 +1,10 @@
 from flask import flash, redirect, render_template, request, url_for, session
 from app import app
-from models import db,User,Sponsor, Influencer
+from models import AdRequest, Campaign, db,User,Sponsor, Influencer
 from werkzeug.security import generate_password_hash,check_password_hash
 from functools import wraps
+from datetime import datetime
+
 
 #decorator for auth_required for session check
 
@@ -33,7 +35,13 @@ def index():
 
 @app.route('/login')
 def login():
+    
     return render_template('login.html')
+
+    # user=session.get('user_id')
+    # if user:
+    #     return redirect(url_for('profile'))
+    # return render_template('login.html')
 
 
 # -------------------------------------------login post
@@ -126,7 +134,7 @@ def register_influencer():
 
     return redirect(url_for('login'))
 
-#-------------------------------------------profile
+#-------------------------------------------profile user , user2 takes data from to diff table to show in profile
 
 @app.route('/profile')
 @auth_required
@@ -253,3 +261,280 @@ def logout():
     session.pop('user_id')
     flash('You have been logged out')
     return redirect(url_for('login'))
+
+
+#-------------------------------------------sponsor campaign
+@app.route('/sponsor-campaign')
+@auth_required
+def sponsor_campaign():
+    user_id = session.get('user_id')
+    campaigns=Campaign.query.filter_by(sponsor_id=user_id, flag=False ).all()
+    user = None
+    user2 ="sponsor"
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('sponsorfunction/campaign.html', user=user, user2=user2, campaigns=campaigns)
+
+@app.route('/campaign/add')
+@auth_required
+def add_campaign():
+    user_id = session.get('user_id')
+    user = None
+    user2 = "sponsor"
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('sponsorfunction/addcampaign.html', user=user, user2=user2)
+
+@app.route('/campaign/add', methods=['POST'])
+@auth_required
+def add_campaign_post():
+    campaignname = request.form.get('name')
+    description = request.form.get('description')
+    start_date_str = request.form.get('start_date')
+    end_date_str = request.form.get('end_date')
+    budget = request.form.get('budget')
+    visibility = request.form.get('visibility')
+    goals = request.form.get('goals')
+
+    if not campaignname or not description or not start_date_str or not end_date_str or not budget or not visibility or not goals:
+        flash('Please enter all the fields', 'error')
+        return redirect(url_for('add_campaign'))
+
+    try:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    except ValueError:
+        flash('Invalid date format', 'error')
+        return redirect(url_for('add_campaign'))
+    
+    user_id = session['user_id']
+    new_campaign = Campaign(sponsor_id=user_id, name=campaignname, description=description, start_date=start_date, end_date=end_date, budget=budget, visibility=visibility, goals=goals)    
+    db.session.add(new_campaign)
+    db.session.commit()
+    flash('Campaign added successfully')
+    return redirect(url_for('sponsor_campaign'))
+
+                 #-------------------------------------------edit campaign
+
+@app.route('/campaign/<int:id>/update')
+@auth_required
+def update_campaign(id):
+    campaign=Campaign.query.get(id)
+    if not campaign:
+        flash('Campaign not found', 'error')
+        return redirect(url_for('sponsor_campaign'))
+    user_id = session.get('user_id')
+    user = None
+    user2 = "sponsor"
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('sponsorfunction/updatecampaign.html', campaign=campaign,user=user, user2=user2)
+
+@app.route('/campaign/<int:id>/update', methods=['POST'])
+@auth_required
+def update_campaign_post(id):
+    campaign=Campaign.query.get(id)
+    if not campaign:
+        flash('Campaign not found', 'error')
+        return redirect(url_for('sponsor_campaign'))
+    campaignname = request.form.get('name')
+    description = request.form.get('description')
+    start_date_str = request.form.get('start_date')
+    end_date_str = request.form.get('end_date')
+    budget = request.form.get('budget')
+    visibility = request.form.get('visibility')
+    goals = request.form.get('goals')
+
+    if not campaignname or not description or not start_date_str or not end_date_str or not budget or not visibility or not goals:
+        flash('Please enter all the fields', 'error')
+        return redirect(url_for('update_campaign', id=id))
+    
+    try:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    except ValueError:
+        flash('Invalid date format', 'error')
+        return redirect(url_for('update_campaign', id=id))
+    
+    campaign.name=campaignname
+    campaign.description=description
+    campaign.start_date=start_date
+    campaign.end_date=end_date
+    campaign.budget=budget
+    campaign.visibility=visibility
+    campaign.goals=goals
+    db.session.commit()
+    flash('Campaign updated successfully')
+    return redirect(url_for('sponsor_campaign'))
+
+                    #-------------------------------------------delete campaign
+
+@app.route('/campaign/<int:id>/delete')
+@auth_required
+def delete_campaign(id):
+    campaign=Campaign.query.get(id)
+    if not campaign:
+        flash('Campaign not found', 'error')
+        return redirect(url_for('sponsor_campaign'))
+    user_id = session.get('user_id')
+    user = None
+    user2 = "sponsor"
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('sponsorfunction/deletecampaign.html', campaign=campaign, user=user, user2=user2)
+
+@app.route('/campaign/<int:id>/delete', methods=['POST'])
+@auth_required
+def delete_campaign_post(id):
+    campaign=Campaign.query.get(id)
+    if not campaign:
+        flash('Campaign not found', 'error') 
+        return redirect(url_for('sponsor_campaign'))
+    db.session.delete(campaign)
+    db.session.commit()
+    flash('Campaign deleted successfully')
+    return redirect(url_for('sponsor_campaign'))
+
+
+#-------------------------------------------sponcer ad request
+@app.route('/sponsor-adrequest')
+@auth_required
+def sponsor_adrequest():
+    user_id = session.get('user_id')
+    adrequests=AdRequest.query.join(Campaign).filter(Campaign.sponsor_id==user_id, AdRequest.flag==False).all()
+    user = None
+    user2 = "sponsor"
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('sponsorfunction/adrequest.html', user=user, user2=user2, adrequests=adrequests)
+
+@app.route('/adrequest/add')
+@auth_required
+def add_adrequest():
+    user_id = session.get('user_id')
+    user = None
+    user2 = "sponsor"
+    campaigns=Campaign.query.filter_by(sponsor_id=user_id).all()
+    influencers=Influencer.query.all()
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('sponsorfunction/add_adrequest.html', user=user, user2=user2, campaigns=campaigns, influencers=influencers)
+
+@app.route('/adrequest/add', methods=['POST'])
+@auth_required
+
+def add_adrequest_post():
+    campaign_id = request.form.get('campaign_id')
+    influencer_id = request.form.get('influencer_id')
+    messages = request.form.get('messages')
+    requirements = request.form.get('requirements')
+    payment_amount = request.form.get('payment_amount')
+
+    if not campaign_id or not influencer_id or not messages or not requirements or not payment_amount:
+        flash('Please enter all the fields', 'error')
+        return redirect(url_for('add_adrequest'))
+
+    user_id = session['user_id']
+    new_adrequest = AdRequest(campaign_id=campaign_id, influencer_id=influencer_id, messages=messages, requirements=requirements, payment_amount=payment_amount)    
+    db.session.add(new_adrequest)
+    db.session.commit()
+    flash('Ad Request added successfully')
+    return redirect(url_for('sponsor_adrequest'))
+
+                    #-------------------------------------------edit ad request
+@app.route('/adrequest/<int:id>/update')
+@auth_required
+def update_adrequest(id):
+    adrequest=AdRequest.query.get(id)
+    if not adrequest:
+        flash('Ad Request not found', 'error')
+        return redirect(url_for('sponsor_adrequest'))
+    user_id = session.get('user_id')
+    user = None
+    user2 = "sponsor"
+    campaigns=Campaign.query.filter_by(sponsor_id=user_id).all()
+    influencers=Influencer.query.all()
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('sponsorfunction/update_adrequest.html', adrequest=adrequest, user=user, user2=user2, campaigns=campaigns, influencers=influencers)
+
+@app.route('/adrequest/<int:id>/update', methods=['POST'])
+@auth_required
+def update_adrequest_post(id):
+    adrequest=AdRequest.query.get(id)
+    if not adrequest:
+        flash('Ad Request not found', 'error')
+        return redirect(url_for('sponsor_adrequest'))
+    campaign_id = request.form.get('campaign_id')
+    influencer_id = request.form.get('influencer_id')
+    messages = request.form.get('messages')
+    requirements = request.form.get('requirements')
+    payment_amount = request.form.get('payment_amount')
+
+    if not campaign_id or not influencer_id or not messages or not requirements or not payment_amount:
+        flash('Please enter all the fields', 'error')
+        return redirect(url_for('update_adrequest', id=id))
+    
+    adrequest.campaign_id=campaign_id
+    adrequest.influencer_id=influencer_id
+    adrequest.messages=messages
+    adrequest.requirements=requirements
+    adrequest.payment_amount=payment_amount
+    db.session.commit()
+    flash('Ad Request updated successfully')
+    return redirect(url_for('sponsor_adrequest'))
+
+                #-------------------------------------------delete ad request
+@app.route('/adrequest/<int:id>/delete', methods=['POST'])
+@auth_required
+def delete_adrequest(id):
+    adrequest = AdRequest.query.get(id)
+    if not adrequest:
+        flash('Ad Request not found')
+        return redirect(url_for('sponsor_adrequest'))
+    
+    db.session.delete(adrequest)
+    db.session.commit()
+    flash('Ad Request deleted successfully')
+    return redirect(url_for('sponsor_adrequest'))
+
+#-------------------------------------------show influencer
+@app.route('/influencer')
+@auth_required
+def allinfluencer():
+    user_id = session.get('user_id')
+    influencers=Influencer.query.filter_by(flag=False).all()
+    user = None
+    user2 = "sponsor"
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('sponsorfunction/allinfluencers.html', user=user, user2=user2, influencers=influencers)
+
+
+#-------------------------------------------influencer function
+
+@app.route('/publiccampaign')
+@auth_required
+def publiccampaign():
+    user_id = session.get('user_id')
+    campaigns=Campaign.query.filter_by(flag=False, visibility='public').all()
+    user = None
+    user2 = "influencer"
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('influencerfunction/publiccampaign.html', user=user, user2=user2, campaigns=campaigns)
+
+#-------------------------------------------influencer show ad request
+
+@app.route('/alladrequest')
+@auth_required
+def alladrequest():
+    user_id = session.get('user_id')
+    adrequests=AdRequest.query.filter_by(flag=False, influencer_id=user_id).all()
+    
+    user = None
+    user2 = "influencer"
+    if user_id:
+        user = User.query.get(user_id)
+    return render_template('influencerfunction/alladrequest.html', user=user, user2=user2, adrequests=adrequests)
+

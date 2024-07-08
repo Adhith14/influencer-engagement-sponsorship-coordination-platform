@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Campaign
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Campaign</h1>
+        <a href="{{ url_for('add_campaign') }}" class="btn btn-success">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+            Create Campaign
+        </a>
+
+        <h2 class="">Active Campaigns</h2>
+
+        
+        {% for campaign in campaigns %}
+                <div class="card" style="width: 18rem;margin:20px">
+                    <div class="card-body">
+                    <h5 class="card-title">{{campaign.name}}</h5>
+                    <p class="card-text">Description: {{campaign.description}}</p>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Start Date: {{campaign.start_date}}</li>
+                    <li class="list-group-item">End Date: {{campaign.end_date}}</li>
+                    <li class="list-group-item">Budget: {{campaign.budget}}</li>
+                    <li class="list-group-item">Visibility: {{campaign.visibility}}</li>
+                    <li class="list-group-item">Goals: {{campaign.goals}}</li>
+        
+                    </ul>
+                    <div class="card-body">
+                        <a href="{{url_for('update_campaign', id=campaign.campaign_id)}}" class="btn btn-primary ">Update</a>
+                        <a href="{{url_for('delete_campaign', id=campaign.campaign_id )}}" class="btn btn-danger">Delete</a>
+                    </div>
+                    
+                </div>
+                
+
+            
+        {% endfor %}
+    </div>
+{% endblock %}

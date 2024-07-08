@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Campaign
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Ad Request</h1>
+        <a href="{{ url_for('add_adrequest') }}" class="btn btn-success">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+            Create Ad Request
+        </a>
+
+        <h2 class="">Active Ad Request</h2>
+        
+        {% for request in adrequests %}
+            <div class="card" style="width: 18rem; margin: 20px;">
+                <div class="card-header">
+                    <p class="card-text">Campaign: {{ request.campaign.name }}</p>
+                </div>
+
+                <div class="card-body">
+                    <p class="card-text">Influencer: {{ request.influencer.name }}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Message: {{ request.messages }}</li>
+                    <li class="list-group-item">Requirement: {{ request.requirements }}</li>
+                    <li class="list-group-item">Payment Amount: {{ request.payment_amount }}</li>
+                    <li class="list-group-item">Status: {{ request.status }}</li>
+                </ul>
+                <div class="card-body">
+                    <a href="{{ url_for('update_adrequest', id=request.ad_request_id) }}" class="btn btn-primary">Update</a>
+                     <form action="{{ url_for('delete_adrequest', id=request.ad_request_id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

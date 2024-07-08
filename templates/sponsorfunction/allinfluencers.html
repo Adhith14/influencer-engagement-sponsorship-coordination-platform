@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+
+{% block title %}
+    All Ifluencers
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Active Influencers</h1>
+      
+    {% for influencer in influencers %}
+            <div class="card" style="width: 18rem;margin:20px">
+                <div class="card-body">
+                <h5 class="card-title">{{influencer.name}}</h5>
+                <p class="card-text">Category: {{influencer.category}}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                <li class="list-group-item">Niche: {{influencer.niche}}</li>
+                <li class="list-group-item">Reach : {{influencer.reach}}</li>
+            
+                </ul>
+                
+            </div>
+            
+
+        
+    {% endfor %}
+</div>
+{% endblock %}

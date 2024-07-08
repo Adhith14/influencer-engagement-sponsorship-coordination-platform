@@ -1,3 +1,4 @@
+from flask_migrate import Migrate
 from app import app
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -16,6 +17,7 @@ class Sponsor(db.Model):
     company_name = db.Column(db.String(80), unique=True, nullable=False)
     industry = db.Column(db.String(80), nullable=False)
     budget = db.Column(db.Float, nullable=False)
+    flag = db.Column(db.Boolean, nullable=False, default=False)
 
 class Influencer(db.Model):
     influencer_id = db.Column(db.Integer,db.ForeignKey('user.user_id'), db.ForeignKey('user.user_id'), primary_key=True)
@@ -23,6 +25,7 @@ class Influencer(db.Model):
     category = db.Column(db.String(80), nullable=False)
     niche = db.Column(db.String(80), nullable=False)
     reach = db.Column(db.Integer, nullable=False)
+    flag = db.Column(db.Boolean, nullable=False, default=False)
 
 class Campaign(db.Model):
     campaign_id = db.Column(db.Integer, primary_key=True)
@@ -34,8 +37,12 @@ class Campaign(db.Model):
     budget = db.Column(db.Float, nullable=False)
     visibility = db.Column(db.String(10), nullable=False)
     goals = db.Column(db.Text, nullable=False)
+    flag=db.Column(db.Boolean, nullable=False, default=False)
 
     sponsor=db.relationship('Sponsor',backref='campaign', lazy=True)
+    ad_requests = db.relationship('AdRequest', backref='campaign', lazy=True)
+
+
 
 class AdRequest(db.Model):
     ad_request_id = db.Column(db.Integer, primary_key=True)
@@ -44,12 +51,11 @@ class AdRequest(db.Model):
     messages = db.Column(db.Text, nullable=False)
     requirements = db.Column(db.Text, nullable=False)
     payment_amount = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(10), nullable=False)
+    status = db.Column(db.String(10), nullable=False, default="pending")
+    flag = db.Column(db.Boolean, nullable=False, default=False)
 
-class FlaggedUser(db.Model):
-    flag_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer,db.ForeignKey('user.user_id'), nullable=False)
-    reason = db.Column(db.Text, nullable=False)
+    influencer = db.relationship('Influencer', backref='ad_requests', lazy=True)
+    
 
 with app.app_context():
     db.create_all()

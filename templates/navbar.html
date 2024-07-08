@@ -8,20 +8,49 @@
         <ul class="navbar-nav">
           {% if 'user_id' in session %}
 
+          <!------------------------------------------- admin nav -->
+
               {% if user.role=='admin' %}
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('profile')}}">AdminProfile</a>
               </li>
+
+          <!------------------------------------------- sponsor nav -->
                 
               {% elif user.role=='sponsor' %}
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('profile')}}">SponsorProfile</a>
               </li>
 
+              <li class="nav-item">
+                <a class="nav-link" href="{{url_for('sponsor_campaign')}}">Campaigns</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="{{url_for('sponsor_adrequest')}}">AdRequests</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="{{url_for('allinfluencer')}}">Influencers</a>
+              </li>
+
+
+          
+          <!------------------------------------------- influencer nav -->
+
+
               {% elif user.role=='influencer' %}
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('profile')}}">InfluencerProfile</a>
-              </li>          
+              </li>   
+              
+              <li class="nav-item">
+                <a class="nav-link" href="{{url_for('publiccampaign')}}">PublicCampaigns</a>
+              </li>   
+
+              <li class="nav-item">
+                <a class="nav-link" href="{{url_for('alladrequest')}}">Ad Requests</a>
+              </li>  
                 
               {% endif %}
 
